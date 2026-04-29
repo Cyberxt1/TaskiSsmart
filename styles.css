@@ -163,6 +163,14 @@ input {
   padding-right: max(20px, calc((100vw - 1360px) / 2));
 }
 
+.panel-header {
+  width: 100%;
+  left: 0;
+  transform: none;
+  padding-left: max(20px, calc((100vw - 1360px) / 2));
+  padding-right: max(20px, calc((100vw - 1360px) / 2));
+}
+
 .marketing-nav {
   display: flex;
   gap: 34px;
