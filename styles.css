@@ -686,6 +686,8 @@ input {
 .stat-symbol.streak {
   color: #ffb13a;
   background: rgba(116, 57, 104, 0.36);
+  animation: streak-float 2.6s ease-in-out infinite;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
 }
 
 .stat-symbol.total {
@@ -728,6 +730,44 @@ input {
   height: 8px;
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.06);
+  transition: background 0.24s ease, box-shadow 0.24s ease, transform 0.24s ease;
+}
+
+.streak-bar-group span.active {
+  background: linear-gradient(90deg, #ffb843 0%, #ff9e2f 100%);
+  box-shadow: 0 0 18px rgba(255, 176, 58, 0.24);
+}
+
+.streak-bar-group span.active:nth-child(odd) {
+  transform: translateY(-1px);
+}
+
+.stat-symbol.streak.tier-fire {
+  color: #ffb13a;
+}
+
+.stat-symbol.streak.tier-star {
+  color: #ffd45b;
+}
+
+.stat-symbol.streak.tier-bolt {
+  color: #8fd0ff;
+}
+
+.stat-symbol.streak.tier-crown {
+  color: #ffe47a;
+}
+
+.stat-symbol.streak.tier-rocket {
+  color: #ff88c8;
+}
+
+.stat-symbol.streak.tier-diamond {
+  color: #83f1ff;
+}
+
+.stat-symbol.streak.tier-trophy {
+  color: #ffd861;
 }
 
 .stat-panel strong {
@@ -1287,6 +1327,15 @@ input {
   }
 }
 
+@keyframes streak-float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-2px);
+  }
+}
+
 @keyframes button-spin {
   to {
     transform: rotate(360deg);
@@ -1393,26 +1442,31 @@ input {
 
   .tasks-topbar {
     flex-direction: column;
-    gap: 18px;
+    gap: 14px;
   }
 
   .task-row-card {
     grid-template-columns: 1fr;
     align-items: flex-start;
-    padding: 18px;
+    min-height: 0;
+    gap: 10px;
+    padding: 14px;
   }
 
   .task-row-check {
-    width: 24px;
-    height: 24px;
+    width: 22px;
+    height: 22px;
   }
 
   .task-row-actions {
     padding-left: 0;
+    gap: 12px;
   }
 
   .task-row-meta {
     flex-wrap: wrap;
+    gap: 8px;
+    font-size: 12px;
   }
 
   .modal-field-row {
@@ -1421,15 +1475,18 @@ input {
   }
 
   .task-modal {
-    padding: 22px 18px 22px;
+    padding: 18px 16px 18px;
+    border-radius: 16px;
   }
 
   .task-filter-row {
     flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 22px;
   }
 
   .page-heading p {
-    font-size: 16px;
+    font-size: 14px;
   }
 
   .panel-main {
@@ -1469,11 +1526,152 @@ input {
     color: white;
   }
 
+  .page-heading h1 {
+    font-size: 26px;
+  }
+
+  .page-welcome {
+    font-size: 13px;
+  }
+
+  .stats-row {
+    gap: 10px;
+    margin-top: 18px;
+  }
+
+  .dashboard-card {
+    border-radius: 16px;
+  }
+
+  .stat-panel {
+    min-height: 128px;
+    padding: 16px;
+  }
+
+  .stat-panel.compact {
+    gap: 12px;
+  }
+
+  .stat-symbol {
+    width: 46px;
+    height: 46px;
+    border-radius: 14px;
+  }
+
+  .stat-copy h2 {
+    font-size: 26px;
+  }
+
+  .stat-copy p {
+    font-size: 13px;
+  }
+
+  .streak-bar-group {
+    margin: 10px 0 8px;
+  }
+
+  .streak-bar-group span {
+    width: 24px;
+    height: 7px;
+  }
+
+  .recent-panel {
+    min-height: 0;
+    margin-top: 16px;
+    padding: 16px;
+  }
+
+  .recent-panel h2 {
+    font-size: 19px;
+  }
+
+  .recent-task-item {
+    min-height: 58px;
+    padding: 11px 12px;
+    border-radius: 12px;
+  }
+
+  .recent-task-copy strong {
+    font-size: 14px;
+  }
+
+  .recent-task-copy span,
+  .recent-task-status {
+    font-size: 12px;
+  }
+
+  .create-task-btn {
+    min-width: 138px;
+    min-height: 42px;
+    border-radius: 12px;
+    font-size: 14px;
+  }
+
+  .filter-chip {
+    height: 38px;
+    padding: 0 13px;
+    font-size: 13px;
+  }
+
+  .task-list {
+    margin-top: 20px;
+  }
+
+  .task-row-content h2 {
+    font-size: 16px;
+  }
+
+  .task-row-content p {
+    font-size: 13px;
+    margin: 2px 0 6px;
+  }
+
+  .task-category-chip,
+  .task-priority-chip {
+    min-height: 22px;
+    padding: 0 10px;
+    font-size: 11px;
+  }
+
   .profile-card,
   .signout-card,
   .recent-panel,
   .stat-panel {
-    padding-left: 20px;
-    padding-right: 20px;
+    padding-left: 16px;
+    padding-right: 16px;
   }
+
+  .profile-card {
+    margin-top: 18px;
+    padding-top: 16px;
+    padding-bottom: 16px;
+  }
+
+  .profile-card h2 {
+    margin-bottom: 16px;
+    font-size: 19px;
+  }
+
+  .form-field {
+    margin-bottom: 14px;
+  }
+
+  .form-field span {
+    margin-bottom: 6px;
+    font-size: 14px;
+  }
+
+  .form-field input {
+    height: 40px;
+    border-radius: 10px;
+    font-size: 14px;
+  }
+
+  .save-btn,
+  .signout-btn {
+    height: 42px;
+    border-radius: 10px;
+    font-size: 14px;
+  }
+
 }

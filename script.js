@@ -242,6 +242,88 @@ function computeStreak(tasks) {
   return { current, longest };
 }
 
+function streakIconMarkup(streak) {
+  if (streak <= 1) {
+    return {
+      tier: "tier-fire",
+      svg: `
+        <svg viewBox="0 0 24 24" fill="none">
+          <path d="M12 3C9.2 6.1 8 8.4 8 10.8C8 13.6 9.9 15.5 12.3 15.5C14.7 15.5 16.5 13.7 16.5 11.4C16.5 9.4 15.4 7.7 12 3Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+          <path d="M10 18.5C10.8 19.4 12 20 13.4 20C16 20 18 18.1 18 15.8C18 14.6 17.5 13.5 16.6 12.7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+      `
+    };
+  }
+
+  if (streak === 2) {
+    return {
+      tier: "tier-star",
+      svg: `
+        <svg viewBox="0 0 24 24" fill="none">
+          <path d="M12 3.8L14.3 8.5L19.5 9.2L15.8 12.9L16.7 18.1L12 15.6L7.3 18.1L8.2 12.9L4.5 9.2L9.7 8.5L12 3.8Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+        </svg>
+      `
+    };
+  }
+
+  if (streak === 3) {
+    return {
+      tier: "tier-bolt",
+      svg: `
+        <svg viewBox="0 0 24 24" fill="none">
+          <path d="M13 3L6 13H11L10 21L18 10H13V3Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+        </svg>
+      `
+    };
+  }
+
+  if (streak === 4) {
+    return {
+      tier: "tier-crown",
+      svg: `
+        <svg viewBox="0 0 24 24" fill="none">
+          <path d="M5 17L3.8 8L8.8 11.5L12 6L15.2 11.5L20.2 8L19 17H5Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+          <path d="M5 20H19" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+      `
+    };
+  }
+
+  if (streak === 5) {
+    return {
+      tier: "tier-rocket",
+      svg: `
+        <svg viewBox="0 0 24 24" fill="none">
+          <path d="M14.5 4.5C17.7 5.4 19.6 8.3 19.5 11.5C16.3 11.6 13.4 9.7 12.5 6.5C13 5.7 13.7 5 14.5 4.5Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+          <path d="M12.5 6.5L8.5 10.5M10 14L6 18M7 9L4 12M13 17L15 20L16.5 16.5L20 15L17 13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      `
+    };
+  }
+
+  if (streak === 6) {
+    return {
+      tier: "tier-diamond",
+      svg: `
+        <svg viewBox="0 0 24 24" fill="none">
+          <path d="M7 5H17L20 10L12 19L4 10L7 5Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+          <path d="M9 5L12 19L15 5M4 10H20" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+        </svg>
+      `
+    };
+  }
+
+  return {
+    tier: "tier-trophy",
+    svg: `
+      <svg viewBox="0 0 24 24" fill="none">
+        <path d="M8 4H16V8C16 10.2 14.2 12 12 12C9.8 12 8 10.2 8 8V4Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+        <path d="M16 5H19V6C19 8.2 17.2 10 15 10M8 5H5V6C5 8.2 6.8 10 9 10M12 12V16M9 20H15M10 16H14V20H10V16Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    `
+  };
+}
+
 function updateLandingLinks(isLoggedIn) {
   if (page !== "index.html") {
     return;
@@ -349,6 +431,8 @@ function renderDashboard() {
   const todayTaskCount = document.getElementById("today-task-count");
   const recentTasksList = document.getElementById("recent-tasks-list");
   const recentEmptyState = document.getElementById("recent-empty-state");
+  const streakSymbol = document.getElementById("streak-symbol");
+  const streakBarGroup = document.getElementById("streak-bar-group");
 
   if (!totalTasksCount || !completedTasksCount || !recentTasksList || !recentEmptyState) {
     return;
@@ -362,6 +446,19 @@ function renderDashboard() {
   streakCount.textContent = String(streak.current);
   longestStreak.textContent = `${streak.longest} days`;
   todayTaskCount.textContent = `${tasksDoneToday(state.tasks)} tasks done today`;
+
+  if (streakSymbol) {
+    const iconState = streakIconMarkup(streak.current);
+    streakSymbol.className = `stat-symbol streak ${iconState.tier}`;
+    streakSymbol.innerHTML = iconState.svg;
+  }
+
+  if (streakBarGroup) {
+    const activeBars = Math.min(streak.current, 7);
+    [...streakBarGroup.children].forEach((bar, index) => {
+      bar.classList.toggle("active", index < activeBars);
+    });
+  }
 
   const recentTasks = [...state.tasks]
     .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
