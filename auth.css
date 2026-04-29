@@ -17,6 +17,12 @@
 html,
 body {
   min-height: 100%;
+  scrollbar-width: none;
+}
+
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+  display: none;
 }
 
 body {
@@ -83,7 +89,12 @@ a {
 }
 
 .auth-header {
-  padding-top: 24px;
+  position: fixed;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 20;
+  padding-top: 18px;
 }
 
 .auth-brand {
@@ -142,18 +153,18 @@ a {
 
 .auth-login-layout {
   min-height: 100vh;
-  padding: 34px 0;
+  padding: 92px 0 24px;
 }
 
 .auth-signup-layout {
   min-height: calc(100vh - 80px);
-  padding: 58px 0 42px;
+  padding: 92px 0 24px;
 }
 
 .auth-kicker {
-  margin: 0 0 28px;
+  margin: 0 0 20px;
   color: var(--muted);
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 500;
 }
 
@@ -167,47 +178,47 @@ a {
 }
 
 .login-card {
-  width: min(100%, 530px);
-  padding: 24px 26px 24px;
+  width: min(100%, 500px);
+  padding: 20px 22px 20px;
   background-color: #09060f85;
 
 }
 
 .signup-card {
-  width: min(100%, 480px);
-  padding: 28px 30px 28px;
+  width: min(100%, 460px);
+  padding: 22px 24px 20px;
   background-color: #09060f9e;
 }
 
 .auth-card h1 {
   margin: 0;
   text-align: center;
-  font-size: 26px;
+  font-size: 24px;
   letter-spacing: -0.05em;
   line-height: 1.04;
 }
 
 .auth-subtitle {
-  margin: 8px 0 22px;
+  margin: 7px 0 18px;
   text-align: center;
   color: var(--muted);
-  font-size: 14px;
+  font-size: 13px;
   line-height: 1.6;
 }
 
 .auth-form {
   display: grid;
-  gap: 14px;
+  gap: 12px;
 }
 
 .auth-field {
   display: grid;
-  gap: 10px;
+  gap: 8px;
 }
 
 .auth-field > span,
 .auth-field-row {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 800;
 }
 
@@ -230,9 +241,9 @@ a {
 
 .auth-page input {
   width: 100%;
-  height: 46px;
+  height: 43px;
   padding: 0 16px;
-  border-radius: 15px;
+  border-radius: 13px;
   outline: none;
   font: inherit;
   transition: border-color 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
@@ -279,14 +290,14 @@ a {
   justify-content: center;
   gap: 14px;
   width: 100%;
-  height: 50px;
-  margin-top: 2px;
+  height: 46px;
+  margin-top: 0;
   border: 0;
   border-radius: 999px;
   background: linear-gradient(90deg, #9d61ff 0%, #855ef8 42%, #5b52ff 100%);
   color: white;
   font: inherit;
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 800;
   cursor: pointer;
   box-shadow: 0 20px 42px rgba(110, 79, 255, 0.24);
@@ -320,10 +331,10 @@ a {
 }
 
 .auth-switch {
-  margin: 22px 0 2px;
+  margin: 18px 0 0;
   text-align: center;
   color: var(--muted);
-  font-size: 14px;
+  font-size: 13px;
 }
 
 .auth-message {
@@ -331,7 +342,7 @@ a {
   margin: -4px 0 0;
   text-align: center;
   color: #f2b7c1;
-  font-size: 13px;
+  font-size: 12px;
   line-height: 1.45;
 }
 
@@ -359,28 +370,29 @@ a {
   }
 
   .auth-header {
-    padding-top: 18px;
+    width: min(100% - 28px, 100%);
+    padding-top: 14px;
   }
 
   .auth-signup-layout,
   .auth-login-layout {
     min-height: auto;
-    padding: 36px 0 30px;
+    padding: 82px 0 18px;
   }
 
   .auth-kicker {
-    margin-bottom: 20px;
-    font-size: 15px;
+    margin-bottom: 14px;
+    font-size: 14px;
   }
 
   .auth-card {
     width: 100%;
-    padding: 24px 20px 22px;
-    border-radius: 16px;
+    padding: 18px 16px 16px;
+    border-radius: 14px;
   }
 
   .auth-card h1 {
-    font-size: 26px;
+    font-size: 22px;
   }
 
   .auth-subtitle,
@@ -389,6 +401,6 @@ a {
   .auth-field-row,
   .auth-page input,
   .auth-submit {
-    font-size: 15px;
+    font-size: 14px;
   }
 }
