@@ -14,7 +14,6 @@ import {
   setDoc,
   getDoc,
   updateDoc,
-  addDoc,
   deleteDoc,
   collection,
   onSnapshot,
@@ -43,17 +42,20 @@ const starsContainer = document.getElementById("stars");
 const page = window.location.pathname.split("/").pop() || "index.html";
 const protectedPages = new Set(["dashboard.html", "tasks.html", "profile.html"]);
 const authPages = new Set(["login.html", "signup.html"]);
+const OFFLINE_TASK_QUEUE_KEY = "taskmaster-offline-tasks";
 
 const state = {
   user: null,
   profile: null,
   tasks: [],
+  offlineTasks: [],
   activeFilter: "all",
   tasksBound: false,
   profileBound: false,
   loginBound: false,
   signupBound: false,
-  isOnline: navigator.onLine
+  isOnline: navigator.onLine,
+  syncInFlight: false
 };
 
 if (starsContainer && !starsContainer.hasAttribute("data-disabled")) {
@@ -89,7 +91,18 @@ function setButtonLoading(button, isLoading) {
 function updateOnlineState() {
   const statusElements = document.querySelectorAll("[data-online-status]");
   const dotElements = document.querySelectorAll("[data-online-dot]");
-  const label = state.isOnline ? "Online" : "Offline";
+  const unsyncedCount = state.offlineTasks.length;
+  let label = state.isOnline ? "Online" : "Offline";
+
+  if (unsyncedCount > 0) {
+    if (!state.isOnline) {
+      label = `${unsyncedCount} pending offline`;
+    } else if (state.syncInFlight) {
+      label = `Syncing ${unsyncedCount} pending`;
+    } else {
+      label = `${unsyncedCount} pending`;
+    }
+  }
 
   statusElements.forEach((element) => {
     element.textContent = label;
@@ -98,6 +111,124 @@ function updateOnlineState() {
   dotElements.forEach((element) => {
     element.classList.toggle("offline", !state.isOnline);
   });
+}
+
+function getOfflineQueue() {
+  try {
+    const raw = window.localStorage.getItem(OFFLINE_TASK_QUEUE_KEY);
+    const parsed = raw ? JSON.parse(raw) : {};
+    return parsed && typeof parsed === "object" ? parsed : {};
+  } catch {
+    return {};
+  }
+}
+
+function setOfflineQueue(queue) {
+  try {
+    window.localStorage.setItem(OFFLINE_TASK_QUEUE_KEY, JSON.stringify(queue));
+  } catch {
+    // Ignore storage write failures so task creation still proceeds in memory.
+  }
+}
+
+function loadOfflineTasks(userId) {
+  const queue = getOfflineQueue();
+  const tasks = Array.isArray(queue[userId]) ? queue[userId] : [];
+
+  state.offlineTasks = tasks
+    .filter((task) => task && typeof task === "object" && task.id)
+    .map((task) => ({
+      ...task,
+      syncStatus: task.syncStatus || "pending"
+    }));
+}
+
+function persistOfflineTasks(userId) {
+  const queue = getOfflineQueue();
+
+  if (state.offlineTasks.length > 0) {
+    queue[userId] = state.offlineTasks;
+  } else {
+    delete queue[userId];
+  }
+
+  setOfflineQueue(queue);
+  updateOnlineState();
+}
+
+function createLocalTaskId() {
+  return `local-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+}
+
+function buildTaskPayload(formData) {
+  return {
+    title: String(formData.get("title") || "").trim(),
+    description: String(formData.get("description") || "").trim(),
+    priority: String(formData.get("priority") || "medium").toLowerCase(),
+    deadline: normalizeDateInput(String(formData.get("deadline") || "").trim()),
+    category: String(formData.get("category") || "").trim(),
+    completed: false,
+    createdAt: new Date().toISOString(),
+    completedAt: null
+  };
+}
+
+function queueOfflineTask(userId, task) {
+  state.offlineTasks = [task, ...state.offlineTasks.filter((item) => item.id !== task.id)];
+  persistOfflineTasks(userId);
+  renderTasks();
+  renderDashboard();
+}
+
+function updateOfflineTask(userId, taskId, updater) {
+  const nextTasks = state.offlineTasks.map((task) => (
+    task.id === taskId ? { ...task, ...updater(task) } : task
+  ));
+
+  state.offlineTasks = nextTasks;
+  persistOfflineTasks(userId);
+  renderTasks();
+  renderDashboard();
+}
+
+function removeOfflineTask(userId, taskId) {
+  state.offlineTasks = state.offlineTasks.filter((task) => task.id !== taskId);
+  persistOfflineTasks(userId);
+  renderTasks();
+  renderDashboard();
+}
+
+function getVisibleTasks() {
+  const syncedTaskIds = new Set(state.tasks.map((task) => task.id));
+  const pendingOnly = state.offlineTasks.filter((task) => !syncedTaskIds.has(task.id));
+  return [...pendingOnly, ...state.tasks].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+}
+
+async function syncOfflineTasks(user) {
+  if (!user || !state.isOnline || state.syncInFlight || state.offlineTasks.length === 0) {
+    updateOnlineState();
+    return;
+  }
+
+  state.syncInFlight = true;
+  updateOnlineState();
+
+  const pendingTasks = [...state.offlineTasks];
+  const remainingTasks = [];
+
+  for (const task of pendingTasks) {
+    try {
+      const { id, syncStatus: _syncStatus, ...taskPayload } = task;
+      await setDoc(doc(db, "users", user.uid, "tasks", id), taskPayload, { merge: true });
+    } catch {
+      remainingTasks.push(task);
+    }
+  }
+
+  state.offlineTasks = remainingTasks;
+  persistOfflineTasks(user.uid);
+  state.syncInFlight = false;
+  updateOnlineState();
 }
 
 function messageFromFirebaseError(error, mode = "signup") {
@@ -367,6 +498,9 @@ function updateWelcomeCopy() {
 
 function createTaskMarkup(task) {
   const checked = task.completed ? "checked" : "";
+  const syncBadge = task.syncStatus === "pending"
+    ? '<span class="task-sync-chip">Pending sync</span>'
+    : "";
 
   return `
     <article class="task-row-card${task.completed ? " is-complete" : ""}" data-task-id="${task.id}">
@@ -381,6 +515,7 @@ function createTaskMarkup(task) {
         <div class="task-row-meta">
           <span>${escapeHtml(formatDeadline(task.deadline))}</span>
           <span class="task-category-chip">${escapeHtml(task.category || "General")}</span>
+          ${syncBadge}
         </div>
       </div>
 
@@ -407,7 +542,7 @@ function renderTasks() {
     return;
   }
 
-  const filteredTasks = state.tasks.filter((task) => {
+  const filteredTasks = getVisibleTasks().filter((task) => {
     if (state.activeFilter === "pending") {
       return !task.completed;
     }
@@ -438,14 +573,15 @@ function renderDashboard() {
     return;
   }
 
-  const completed = state.tasks.filter((task) => task.completed).length;
-  const streak = computeStreak(state.tasks);
+  const visibleTasks = getVisibleTasks();
+  const completed = visibleTasks.filter((task) => task.completed).length;
+  const streak = computeStreak(visibleTasks);
 
-  totalTasksCount.textContent = String(state.tasks.length);
+  totalTasksCount.textContent = String(visibleTasks.length);
   completedTasksCount.textContent = String(completed);
   streakCount.textContent = String(streak.current);
   longestStreak.textContent = `${streak.longest} days`;
-  todayTaskCount.textContent = `${tasksDoneToday(state.tasks)} tasks done today`;
+  todayTaskCount.textContent = `${tasksDoneToday(visibleTasks)} tasks done today`;
 
   if (streakSymbol) {
     const iconState = streakIconMarkup(streak.current);
@@ -460,7 +596,7 @@ function renderDashboard() {
     });
   }
 
-  const recentTasks = [...state.tasks]
+  const recentTasks = [...visibleTasks]
     .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
     .slice(0, 4);
 
@@ -530,6 +666,8 @@ function bindTaskStream(user) {
   }
 
   state.tasksBound = true;
+  loadOfflineTasks(user.uid);
+  updateOnlineState();
   const tasksQuery = query(collection(db, "users", user.uid, "tasks"), orderBy("createdAt", "desc"));
 
   onSnapshot(tasksQuery, (snapshot) => {
@@ -538,8 +676,16 @@ function bindTaskStream(user) {
       ...taskDoc.data()
     }));
 
+    const syncedTaskIds = new Set(state.tasks.map((task) => task.id));
+
+    if (syncedTaskIds.size > 0 && state.offlineTasks.length > 0) {
+      state.offlineTasks = state.offlineTasks.filter((task) => !syncedTaskIds.has(task.id));
+      persistOfflineTasks(user.uid);
+    }
+
     renderTasks();
     renderDashboard();
+    syncOfflineTasks(user);
   });
 }
 
@@ -576,16 +722,26 @@ function initTasksPage(user) {
       setButtonLoading(submitButton, true);
 
       try {
-        await addDoc(collection(db, "users", user.uid, "tasks"), {
-          title,
-          description: String(formData.get("description") || "").trim(),
-          priority: String(formData.get("priority") || "medium").toLowerCase(),
-          deadline: normalizeDateInput(String(formData.get("deadline") || "").trim()),
-          category: String(formData.get("category") || "").trim(),
-          completed: false,
-          createdAt: new Date().toISOString(),
-          completedAt: null
-        });
+        const taskId = createLocalTaskId();
+        const payload = buildTaskPayload(formData);
+
+        if (state.isOnline) {
+          try {
+            await setDoc(doc(db, "users", user.uid, "tasks", taskId), payload);
+          } catch {
+            queueOfflineTask(user.uid, {
+              id: taskId,
+              ...payload,
+              syncStatus: "pending"
+            });
+          }
+        } else {
+          queueOfflineTask(user.uid, {
+            id: taskId,
+            ...payload,
+            syncStatus: "pending"
+          });
+        }
 
         taskForm.reset();
         window.location.hash = "";
@@ -622,6 +778,22 @@ function initTasksPage(user) {
       const task = state.tasks.find((item) => item.id === taskId);
 
       if (!task) {
+        return;
+      }
+
+      if (task.syncStatus === "pending") {
+        if (event.target.closest(".task-delete-btn")) {
+          removeOfflineTask(user.uid, taskId);
+          return;
+        }
+
+        if (event.target.closest(".task-row-check")) {
+          updateOfflineTask(user.uid, taskId, (currentTask) => ({
+            completed: !currentTask.completed,
+            completedAt: !currentTask.completed ? new Date().toISOString() : null
+          }));
+        }
+
         return;
       }
 
@@ -813,11 +985,16 @@ onAuthStateChanged(auth, async (user) => {
   initTasksPage(user);
   initDashboardPage();
   initProfilePage(user);
+  syncOfflineTasks(user);
 });
 
 window.addEventListener("online", () => {
   state.isOnline = true;
   updateOnlineState();
+
+  if (state.user) {
+    syncOfflineTasks(state.user);
+  }
 });
 
 window.addEventListener("offline", () => {
