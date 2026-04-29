@@ -1,26 +1,3 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import {
-  getAuth,
-  onAuthStateChanged,
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-  signOut
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import {
-  initializeFirestore,
-  persistentLocalCache,
-  persistentMultipleTabManager,
-  doc,
-  setDoc,
-  getDoc,
-  updateDoc,
-  deleteDoc,
-  collection,
-  onSnapshot,
-  query,
-  orderBy
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
 const firebaseConfig = {
   apiKey: "AIzaSyASjLfdanR3rskvdxtmoQ6Jaq-HtHmLZxI",
   authDomain: "taskismart.firebaseapp.com",
@@ -30,19 +7,36 @@ const firebaseConfig = {
   appId: "1:96628595458:web:573af33070f8680314401b"
 };
 
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = initializeFirestore(app, {
-  localCache: persistentLocalCache({
-    tabManager: persistentMultipleTabManager()
-  })
-});
+let auth = null;
+let db = null;
+let initializeAppRef = null;
+let getAuthRef = null;
+let onAuthStateChangedRef = null;
+let createUserWithEmailAndPasswordRef = null;
+let signInWithEmailAndPasswordRef = null;
+let signOutRef = null;
+let initializeFirestoreRef = null;
+let persistentLocalCacheRef = null;
+let persistentMultipleTabManagerRef = null;
+let docRef = null;
+let setDocRef = null;
+let getDocRef = null;
+let updateDocRef = null;
+let deleteDocRef = null;
+let collectionRef = null;
+let onSnapshotRef = null;
+let queryRef = null;
+let orderByRef = null;
+let firebaseLoadPromise = null;
 
 const starsContainer = document.getElementById("stars");
 const page = window.location.pathname.split("/").pop() || "index.html";
 const protectedPages = new Set(["dashboard.html", "tasks.html", "profile.html"]);
 const authPages = new Set(["login.html", "signup.html"]);
 const OFFLINE_TASK_QUEUE_KEY = "taskmaster-offline-tasks";
+const CACHED_TASKS_KEY = "taskmaster-cached-tasks";
+const CACHED_PROFILE_KEY = "taskmaster-cached-profiles";
+const SESSION_KEY = "taskmaster-session";
 
 const state = {
   user: null,
@@ -55,8 +49,65 @@ const state = {
   loginBound: false,
   signupBound: false,
   isOnline: navigator.onLine,
-  syncInFlight: false
+  syncInFlight: false,
+  firebaseReady: false,
+  authObserverBound: false
 };
+
+async function loadFirebase() {
+  if (state.firebaseReady) {
+    return true;
+  }
+
+  if (!firebaseLoadPromise) {
+    firebaseLoadPromise = Promise.all([
+      import("https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"),
+      import("https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js"),
+      import("https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js")
+    ]).then(([appModule, authModule, firestoreModule]) => {
+      initializeAppRef = appModule.initializeApp;
+      getAuthRef = authModule.getAuth;
+      onAuthStateChangedRef = authModule.onAuthStateChanged;
+      createUserWithEmailAndPasswordRef = authModule.createUserWithEmailAndPassword;
+      signInWithEmailAndPasswordRef = authModule.signInWithEmailAndPassword;
+      signOutRef = authModule.signOut;
+
+      initializeFirestoreRef = firestoreModule.initializeFirestore;
+      persistentLocalCacheRef = firestoreModule.persistentLocalCache;
+      persistentMultipleTabManagerRef = firestoreModule.persistentMultipleTabManager;
+      docRef = firestoreModule.doc;
+      setDocRef = firestoreModule.setDoc;
+      getDocRef = firestoreModule.getDoc;
+      updateDocRef = firestoreModule.updateDoc;
+      deleteDocRef = firestoreModule.deleteDoc;
+      collectionRef = firestoreModule.collection;
+      onSnapshotRef = firestoreModule.onSnapshot;
+      queryRef = firestoreModule.query;
+      orderByRef = firestoreModule.orderBy;
+
+      const app = initializeAppRef(firebaseConfig);
+      auth = getAuthRef(app);
+      db = initializeFirestoreRef(app, {
+        localCache: persistentLocalCacheRef({
+          tabManager: persistentMultipleTabManagerRef()
+        })
+      });
+
+      state.firebaseReady = true;
+      return true;
+    }).catch((error) => {
+      firebaseLoadPromise = null;
+      throw error;
+    });
+  }
+
+  try {
+    await firebaseLoadPromise;
+    return true;
+  } catch {
+    return false;
+  }
+}
 
 if (starsContainer && !starsContainer.hasAttribute("data-disabled")) {
   const starCount = 44;
@@ -88,6 +139,18 @@ function setButtonLoading(button, isLoading) {
   button.disabled = isLoading;
 }
 
+function registerServiceWorker() {
+  if (!("serviceWorker" in navigator)) {
+    return;
+  }
+
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("./sw.js").catch(() => {
+      // Ignore service worker registration failures.
+    });
+  }, { once: true });
+}
+
 function updateOnlineState() {
   const statusElements = document.querySelectorAll("[data-online-status]");
   const dotElements = document.querySelectorAll("[data-online-dot]");
@@ -113,9 +176,9 @@ function updateOnlineState() {
   });
 }
 
-function getOfflineQueue() {
+function readLocalJson(key) {
   try {
-    const raw = window.localStorage.getItem(OFFLINE_TASK_QUEUE_KEY);
+    const raw = window.localStorage.getItem(key);
     const parsed = raw ? JSON.parse(raw) : {};
     return parsed && typeof parsed === "object" ? parsed : {};
   } catch {
@@ -123,12 +186,118 @@ function getOfflineQueue() {
   }
 }
 
-function setOfflineQueue(queue) {
+function writeLocalJson(key, value) {
   try {
-    window.localStorage.setItem(OFFLINE_TASK_QUEUE_KEY, JSON.stringify(queue));
+    window.localStorage.setItem(key, JSON.stringify(value));
   } catch {
-    // Ignore storage write failures so task creation still proceeds in memory.
+    // Ignore storage write failures so the app can keep running in memory.
   }
+}
+
+function getOfflineQueue() {
+  return readLocalJson(OFFLINE_TASK_QUEUE_KEY);
+}
+
+function setOfflineQueue(queue) {
+  writeLocalJson(OFFLINE_TASK_QUEUE_KEY, queue);
+}
+
+function getCachedTasksMap() {
+  return readLocalJson(CACHED_TASKS_KEY);
+}
+
+function persistCachedTasks(userId, tasks) {
+  const cachedTasks = getCachedTasksMap();
+
+  if (tasks.length > 0) {
+    cachedTasks[userId] = tasks;
+  } else {
+    delete cachedTasks[userId];
+  }
+
+  writeLocalJson(CACHED_TASKS_KEY, cachedTasks);
+}
+
+function loadCachedTasks(userId) {
+  const cachedTasks = getCachedTasksMap();
+  const tasks = Array.isArray(cachedTasks[userId]) ? cachedTasks[userId] : [];
+  state.tasks = tasks.filter((task) => task && typeof task === "object" && task.id);
+}
+
+function getCachedProfilesMap() {
+  return readLocalJson(CACHED_PROFILE_KEY);
+}
+
+function persistCachedProfile(userId, profile) {
+  const cachedProfiles = getCachedProfilesMap();
+
+  if (profile && typeof profile === "object") {
+    cachedProfiles[userId] = profile;
+  } else {
+    delete cachedProfiles[userId];
+  }
+
+  writeLocalJson(CACHED_PROFILE_KEY, cachedProfiles);
+}
+
+function loadCachedProfile(userId) {
+  const cachedProfiles = getCachedProfilesMap();
+  state.profile = cachedProfiles[userId] || null;
+}
+
+function clearCachedUserData(userId) {
+  if (!userId) {
+    return;
+  }
+
+  const cachedTasks = getCachedTasksMap();
+  const cachedProfiles = getCachedProfilesMap();
+  const offlineQueue = getOfflineQueue();
+
+  delete cachedTasks[userId];
+  delete cachedProfiles[userId];
+  delete offlineQueue[userId];
+
+  writeLocalJson(CACHED_TASKS_KEY, cachedTasks);
+  writeLocalJson(CACHED_PROFILE_KEY, cachedProfiles);
+  setOfflineQueue(offlineQueue);
+}
+
+function cacheSession(user) {
+  if (!user?.uid) {
+    return;
+  }
+
+  writeLocalJson(SESSION_KEY, {
+    uid: user.uid,
+    email: user.email || ""
+  });
+}
+
+function clearCachedSession() {
+  try {
+    window.localStorage.removeItem(SESSION_KEY);
+  } catch {
+    // Ignore storage cleanup failures.
+  }
+}
+
+function readCachedSession() {
+  const session = readLocalJson(SESSION_KEY);
+  return session.uid ? session : null;
+}
+
+function restoreCachedUser() {
+  const session = readCachedSession();
+
+  if (!session) {
+    return null;
+  }
+
+  return {
+    uid: session.uid,
+    email: session.email || ""
+  };
 }
 
 function loadOfflineTasks(userId) {
@@ -205,7 +374,7 @@ function getVisibleTasks() {
 }
 
 async function syncOfflineTasks(user) {
-  if (!user || !state.isOnline || state.syncInFlight || state.offlineTasks.length === 0) {
+  if (!user || !state.isOnline || !state.firebaseReady || state.syncInFlight || state.offlineTasks.length === 0) {
     updateOnlineState();
     return;
   }
@@ -219,7 +388,7 @@ async function syncOfflineTasks(user) {
   for (const task of pendingTasks) {
     try {
       const { id, syncStatus: _syncStatus, ...taskPayload } = task;
-      await setDoc(doc(db, "users", user.uid, "tasks", id), taskPayload, { merge: true });
+      await setDocRef(docRef(db, "users", user.uid, "tasks", id), taskPayload, { merge: true });
     } catch {
       remainingTasks.push(task);
     }
@@ -649,32 +818,44 @@ function hydrateProfileForm() {
 }
 
 async function ensureUserProfile(user) {
-  const userRef = doc(db, "users", user.uid);
-  const snapshot = await getDoc(userRef);
+  if (!state.firebaseReady) {
+    loadCachedProfile(user.uid);
+    hydrateProfileForm();
+    return;
+  }
+
+  const userRef = docRef(db, "users", user.uid);
+  const snapshot = await getDocRef(userRef);
 
   if (!snapshot.exists()) {
     return;
   }
 
   state.profile = snapshot.data();
+  persistCachedProfile(user.uid, state.profile);
   hydrateProfileForm();
 }
 
 function bindTaskStream(user) {
-  if (state.tasksBound) {
+  if (state.tasksBound || !state.firebaseReady) {
     return;
   }
 
   state.tasksBound = true;
   loadOfflineTasks(user.uid);
+  loadCachedTasks(user.uid);
   updateOnlineState();
-  const tasksQuery = query(collection(db, "users", user.uid, "tasks"), orderBy("createdAt", "desc"));
+  const tasksQuery = queryRef(
+    collectionRef(db, "users", user.uid, "tasks"),
+    orderByRef("createdAt", "desc")
+  );
 
-  onSnapshot(tasksQuery, (snapshot) => {
+  onSnapshotRef(tasksQuery, (snapshot) => {
     state.tasks = snapshot.docs.map((taskDoc) => ({
       id: taskDoc.id,
       ...taskDoc.data()
     }));
+    persistCachedTasks(user.uid, state.tasks);
 
     const syncedTaskIds = new Set(state.tasks.map((task) => task.id));
 
@@ -725,9 +906,9 @@ function initTasksPage(user) {
         const taskId = createLocalTaskId();
         const payload = buildTaskPayload(formData);
 
-        if (state.isOnline) {
+        if (state.isOnline && state.firebaseReady) {
           try {
-            await setDoc(doc(db, "users", user.uid, "tasks", taskId), payload);
+            await setDocRef(docRef(db, "users", user.uid, "tasks", taskId), payload);
           } catch {
             queueOfflineTask(user.uid, {
               id: taskId,
@@ -775,7 +956,7 @@ function initTasksPage(user) {
       }
 
       const taskId = taskCard.dataset.taskId;
-      const task = state.tasks.find((item) => item.id === taskId);
+      const task = getVisibleTasks().find((item) => item.id === taskId);
 
       if (!task) {
         return;
@@ -797,15 +978,19 @@ function initTasksPage(user) {
         return;
       }
 
-      const taskRef = doc(db, "users", user.uid, "tasks", taskId);
+      if (!state.isOnline || !state.firebaseReady) {
+        return;
+      }
+
+      const taskRef = docRef(db, "users", user.uid, "tasks", taskId);
 
       if (event.target.closest(".task-delete-btn")) {
-        await deleteDoc(taskRef);
+        await deleteDocRef(taskRef);
         return;
       }
 
       if (event.target.closest(".task-row-check")) {
-        await updateDoc(taskRef, {
+        await updateDocRef(taskRef, {
           completed: !task.completed,
           completedAt: !task.completed ? new Date().toISOString() : null
         });
@@ -850,8 +1035,13 @@ function initProfilePage(user) {
     };
 
     try {
-      await updateDoc(doc(db, "users", user.uid), nextProfile);
       state.profile = { ...state.profile, ...nextProfile };
+      persistCachedProfile(user.uid, state.profile);
+
+      if (state.isOnline && state.firebaseReady) {
+        await updateDocRef(docRef(db, "users", user.uid), nextProfile);
+      }
+
       hydrateProfileForm();
     } finally {
       setButtonLoading(submitButton, false);
@@ -862,7 +1052,14 @@ function initProfilePage(user) {
     setButtonLoading(signOutButton, true);
 
     try {
-      await signOut(auth);
+      clearCachedUserData(user.uid);
+
+      if (state.firebaseReady) {
+        await signOutRef(auth);
+      } else {
+        clearCachedSession();
+      }
+
       redirectTo("index.html");
     } finally {
       setButtonLoading(signOutButton, false);
@@ -902,9 +1099,13 @@ function initSignupPage() {
     setButtonLoading(submitButton, true);
 
     try {
-      const credentials = await createUserWithEmailAndPassword(auth, email, password);
+      if (!state.firebaseReady && !await loadFirebase()) {
+        throw new Error("offline-auth");
+      }
 
-      await setDoc(doc(db, "users", credentials.user.uid), {
+      const credentials = await createUserWithEmailAndPasswordRef(auth, email, password);
+
+      await setDocRef(docRef(db, "users", credentials.user.uid), {
         email,
         fullName,
         university: "",
@@ -914,7 +1115,9 @@ function initSignupPage() {
       redirectTo("dashboard.html");
     } catch (error) {
       if (message) {
-        message.textContent = messageFromFirebaseError(error, "signup");
+        message.textContent = error?.message === "offline-auth"
+          ? "Signup needs internet the first time so Firebase can connect."
+          : messageFromFirebaseError(error, "signup");
       }
     } finally {
       setButtonLoading(submitButton, false);
@@ -946,11 +1149,17 @@ function initLoginPage() {
     setButtonLoading(submitButton, true);
 
     try {
-      await signInWithEmailAndPassword(auth, email, password);
+      if (!state.firebaseReady && !await loadFirebase()) {
+        throw new Error("offline-auth");
+      }
+
+      await signInWithEmailAndPasswordRef(auth, email, password);
       redirectTo("dashboard.html");
     } catch (error) {
       if (message) {
-        message.textContent = messageFromFirebaseError(error, "login");
+        message.textContent = error?.message === "offline-auth"
+          ? "Login needs internet the first time so Firebase can connect."
+          : messageFromFirebaseError(error, "login");
       }
     } finally {
       setButtonLoading(submitButton, false);
@@ -958,27 +1167,32 @@ function initLoginPage() {
   });
 }
 
-onAuthStateChanged(auth, async (user) => {
-  state.user = user;
-  updateLandingLinks(Boolean(user));
+function bootCachedSession() {
+  const cachedUser = restoreCachedUser();
+
+  if (!cachedUser) {
+    return false;
+  }
+
+  state.user = cachedUser;
+  loadCachedProfile(cachedUser.uid);
+  loadCachedTasks(cachedUser.uid);
+  loadOfflineTasks(cachedUser.uid);
+  updateLandingLinks(true);
   updateOnlineState();
+  updateWelcomeCopy();
+  initTasksPage(cachedUser);
+  initDashboardPage();
+  initProfilePage(cachedUser);
+  return true;
+}
 
-  if (!user) {
-    if (protectedPages.has(page)) {
-      redirectTo("login.html");
-      return;
-    }
-
-    initSignupPage();
-    initLoginPage();
-    return;
-  }
-
-  if (authPages.has(page)) {
-    redirectTo("dashboard.html");
-    return;
-  }
-
+async function handleSignedInUser(user) {
+  state.user = user;
+  cacheSession(user);
+  updateLandingLinks(true);
+  loadOfflineTasks(user.uid);
+  loadCachedTasks(user.uid);
   await ensureUserProfile(user);
   updateWelcomeCopy();
   bindTaskStream(user);
@@ -986,11 +1200,87 @@ onAuthStateChanged(auth, async (user) => {
   initDashboardPage();
   initProfilePage(user);
   syncOfflineTasks(user);
-});
+}
+
+function handleSignedOutUser() {
+  const previousUserId = state.user?.uid;
+  state.user = null;
+  state.profile = null;
+  state.tasks = [];
+  state.offlineTasks = [];
+  state.tasksBound = false;
+  clearCachedSession();
+  clearCachedUserData(previousUserId);
+  updateLandingLinks(false);
+  updateOnlineState();
+
+  if (protectedPages.has(page)) {
+    redirectTo("login.html");
+    return;
+  }
+
+  initSignupPage();
+  initLoginPage();
+}
+
+async function attachFirebaseAuth() {
+  if (!await loadFirebase()) {
+    return false;
+  }
+
+  if (state.authObserverBound) {
+    return true;
+  }
+
+  state.authObserverBound = true;
+
+  onAuthStateChangedRef(auth, async (user) => {
+    if (!user) {
+      handleSignedOutUser();
+      return;
+    }
+
+    if (authPages.has(page)) {
+      redirectTo("dashboard.html");
+      return;
+    }
+
+    await handleSignedInUser(user);
+  });
+
+  return true;
+}
+
+async function bootstrapApp() {
+  registerServiceWorker();
+  const hasCachedSession = bootCachedSession();
+
+  if (!state.isOnline) {
+    if (!hasCachedSession) {
+      updateLandingLinks(false);
+      initSignupPage();
+      initLoginPage();
+    }
+
+    return;
+  }
+
+  const firebaseAttached = await attachFirebaseAuth();
+
+  if (!firebaseAttached && !hasCachedSession) {
+    updateLandingLinks(false);
+    initSignupPage();
+    initLoginPage();
+  }
+}
 
 window.addEventListener("online", () => {
   state.isOnline = true;
   updateOnlineState();
+
+  if (!state.firebaseReady) {
+    attachFirebaseAuth();
+  }
 
   if (state.user) {
     syncOfflineTasks(state.user);
@@ -1003,3 +1293,4 @@ window.addEventListener("offline", () => {
 });
 
 updateOnlineState();
+bootstrapApp();
