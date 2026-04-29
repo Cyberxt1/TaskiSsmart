@@ -56,7 +56,7 @@ const state = {
   isOnline: navigator.onLine
 };
 
-if (starsContainer) {
+if (starsContainer && !starsContainer.hasAttribute("data-disabled")) {
   const starCount = 44;
 
   for (let i = 0; i < starCount; i += 1) {
