@@ -77,6 +77,15 @@ function redirectTo(url) {
   }
 }
 
+function setButtonLoading(button, isLoading) {
+  if (!button) {
+    return;
+  }
+
+  button.classList.toggle("is-loading", isLoading);
+  button.disabled = isLoading;
+}
+
 function updateOnlineState() {
   const statusElements = document.querySelectorAll("[data-online-status]");
   const dotElements = document.querySelectorAll("[data-online-dot]");
@@ -458,6 +467,7 @@ function initTasksPage(user) {
 
     taskForm.addEventListener("submit", async (event) => {
       event.preventDefault();
+      const submitButton = taskForm.querySelector(".create-modal-submit");
 
       const formData = new FormData(taskForm);
       const title = String(formData.get("title") || "").trim();
@@ -466,19 +476,25 @@ function initTasksPage(user) {
         return;
       }
 
-      await addDoc(collection(db, "users", user.uid, "tasks"), {
-        title,
-        description: String(formData.get("description") || "").trim(),
-        priority: String(formData.get("priority") || "medium").toLowerCase(),
-        deadline: normalizeDateInput(String(formData.get("deadline") || "").trim()),
-        category: String(formData.get("category") || "").trim(),
-        completed: false,
-        createdAt: new Date().toISOString(),
-        completedAt: null
-      });
+      setButtonLoading(submitButton, true);
 
-      taskForm.reset();
-      window.location.hash = "";
+      try {
+        await addDoc(collection(db, "users", user.uid, "tasks"), {
+          title,
+          description: String(formData.get("description") || "").trim(),
+          priority: String(formData.get("priority") || "medium").toLowerCase(),
+          deadline: normalizeDateInput(String(formData.get("deadline") || "").trim()),
+          category: String(formData.get("category") || "").trim(),
+          completed: false,
+          createdAt: new Date().toISOString(),
+          completedAt: null
+        });
+
+        taskForm.reset();
+        window.location.hash = "";
+      } finally {
+        setButtonLoading(submitButton, false);
+      }
     });
   }
 
@@ -554,6 +570,8 @@ function initProfilePage(user) {
 
   profileForm.addEventListener("submit", async (event) => {
     event.preventDefault();
+    const submitButton = profileForm.querySelector(".save-btn");
+    setButtonLoading(submitButton, true);
 
     const formData = new FormData(profileForm);
     const nextProfile = {
@@ -562,14 +580,24 @@ function initProfilePage(user) {
       university: String(formData.get("university") || "").trim()
     };
 
-    await updateDoc(doc(db, "users", user.uid), nextProfile);
-    state.profile = { ...state.profile, ...nextProfile };
-    hydrateProfileForm();
+    try {
+      await updateDoc(doc(db, "users", user.uid), nextProfile);
+      state.profile = { ...state.profile, ...nextProfile };
+      hydrateProfileForm();
+    } finally {
+      setButtonLoading(submitButton, false);
+    }
   });
 
   signOutButton.addEventListener("click", async () => {
-    await signOut(auth);
-    redirectTo("index.html");
+    setButtonLoading(signOutButton, true);
+
+    try {
+      await signOut(auth);
+      redirectTo("index.html");
+    } finally {
+      setButtonLoading(signOutButton, false);
+    }
   });
 }
 
@@ -585,6 +613,7 @@ function initSignupPage() {
 
   signupForm.addEventListener("submit", async (event) => {
     event.preventDefault();
+    const submitButton = signupForm.querySelector(".auth-submit");
     if (message) {
       message.textContent = "";
     }
@@ -601,6 +630,8 @@ function initSignupPage() {
       return;
     }
 
+    setButtonLoading(submitButton, true);
+
     try {
       const credentials = await createUserWithEmailAndPassword(auth, email, password);
 
@@ -616,6 +647,8 @@ function initSignupPage() {
       if (message) {
         message.textContent = messageFromFirebaseError(error, "signup");
       }
+    } finally {
+      setButtonLoading(submitButton, false);
     }
   });
 }
@@ -632,6 +665,7 @@ function initLoginPage() {
 
   loginForm.addEventListener("submit", async (event) => {
     event.preventDefault();
+    const submitButton = loginForm.querySelector(".auth-submit");
     if (message) {
       message.textContent = "";
     }
@@ -640,6 +674,8 @@ function initLoginPage() {
     const email = String(formData.get("email") || "").trim().toLowerCase();
     const password = String(formData.get("password") || "").trim();
 
+    setButtonLoading(submitButton, true);
+
     try {
       await signInWithEmailAndPassword(auth, email, password);
       redirectTo("dashboard.html");
@@ -647,6 +683,8 @@ function initLoginPage() {
       if (message) {
         message.textContent = messageFromFirebaseError(error, "login");
       }
+    } finally {
+      setButtonLoading(submitButton, false);
     }
   });
 }

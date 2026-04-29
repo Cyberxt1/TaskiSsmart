@@ -551,12 +551,6 @@ input {
   gap: 16px;
 }
 
-.panel-greeting {
-  color: #c7b7e5;
-  font-size: 14px;
-  font-weight: 700;
-}
-
 .online-pill {
   display: inline-flex;
   align-items: center;
@@ -1203,6 +1197,38 @@ input {
   cursor: pointer;
 }
 
+.save-btn,
+.signout-btn,
+.create-modal-submit {
+  position: relative;
+}
+
+.save-btn.is-loading,
+.signout-btn.is-loading,
+.create-modal-submit.is-loading {
+  pointer-events: none;
+  opacity: 0.9;
+}
+
+.save-btn.is-loading,
+.signout-btn.is-loading,
+.create-modal-submit.is-loading {
+  color: transparent;
+}
+
+.save-btn.is-loading::after,
+.signout-btn.is-loading::after,
+.create-modal-submit.is-loading::after {
+  content: "";
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(255, 255, 255, 0.26);
+  border-top-color: #ffffff;
+  border-radius: 999px;
+  animation: button-spin 0.7s linear infinite;
+}
+
 .signout-card {
   margin-top: 20px;
   padding: 22px;
@@ -1232,6 +1258,12 @@ input {
   50% {
     opacity: 0.75;
     transform: scale(1.5);
+  }
+}
+
+@keyframes button-spin {
+  to {
+    transform: rotate(360deg);
   }
 }
 
@@ -1280,10 +1312,6 @@ input {
 
   .panel-status-group {
     gap: 10px;
-  }
-
-  .panel-greeting {
-    display: none;
   }
 
   .brand {

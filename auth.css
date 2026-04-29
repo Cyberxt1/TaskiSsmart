@@ -290,6 +290,27 @@ a {
   box-shadow: 0 24px 50px rgba(110, 79, 255, 0.3);
 }
 
+.auth-submit.is-loading {
+  pointer-events: none;
+  opacity: 0.9;
+}
+
+.auth-submit.is-loading svg,
+.auth-submit.is-loading span {
+  opacity: 0;
+}
+
+.auth-submit.is-loading::after {
+  content: "";
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(255, 255, 255, 0.28);
+  border-top-color: #ffffff;
+  border-radius: 999px;
+  animation: button-spin 0.7s linear infinite;
+}
+
 .auth-switch {
   margin: 22px 0 2px;
   text-align: center;
@@ -313,6 +334,12 @@ a {
   50% {
     opacity: 0.75;
     transform: scale(1.5);
+  }
+}
+
+@keyframes button-spin {
+  to {
+    transform: rotate(360deg);
   }
 }
 
