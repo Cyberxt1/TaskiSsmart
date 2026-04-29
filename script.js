@@ -151,6 +151,32 @@ function registerServiceWorker() {
   }, { once: true });
 }
 
+function warmOfflineShell() {
+  if (!("caches" in window)) {
+    return;
+  }
+
+  const shellAssets = [
+    "./index.html",
+    "./dashboard.html",
+    "./tasks.html",
+    "./profile.html",
+    "./login.html",
+    "./signup.html",
+    "./styles.css",
+    "./auth.css",
+    "./script.js",
+    "./icon.png",
+    "./icon.jpeg"
+  ];
+
+  caches.open("taskmaster-shell-v2")
+    .then((cache) => cache.addAll(shellAssets))
+    .catch(() => {
+      // Ignore cache warmup failures and let the service worker retry later.
+    });
+}
+
 function updateOnlineState() {
   const statusElements = document.querySelectorAll("[data-online-status]");
   const dotElements = document.querySelectorAll("[data-online-dot]");
@@ -1190,6 +1216,7 @@ function bootCachedSession() {
 async function handleSignedInUser(user) {
   state.user = user;
   cacheSession(user);
+  warmOfflineShell();
   updateLandingLinks(true);
   loadOfflineTasks(user.uid);
   loadCachedTasks(user.uid);
@@ -1254,6 +1281,10 @@ async function attachFirebaseAuth() {
 async function bootstrapApp() {
   registerServiceWorker();
   const hasCachedSession = bootCachedSession();
+
+  if (hasCachedSession) {
+    warmOfflineShell();
+  }
 
   if (!state.isOnline) {
     if (!hasCachedSession) {

@@ -1,18 +1,32 @@
-const CACHE_NAME = "taskmaster-shell-v1";
+const CACHE_NAME = "taskmaster-shell-v2";
 const APP_SHELL = [
-  "/",
-  "/index.html",
-  "/dashboard.html",
-  "/tasks.html",
-  "/profile.html",
-  "/login.html",
-  "/signup.html",
-  "/styles.css",
-  "/auth.css",
-  "/script.js",
-  "/icon.png",
-  "/icon.jpeg"
+  "./",
+  "./index.html",
+  "./dashboard.html",
+  "./tasks.html",
+  "./profile.html",
+  "./login.html",
+  "./signup.html",
+  "./styles.css",
+  "./auth.css",
+  "./script.js",
+  "./icon.png",
+  "./icon.jpeg"
 ];
+
+const ROUTE_FALLBACKS = new Map([
+  ["/", "./index.html"],
+  ["/index.html", "./index.html"],
+  ["/dashboard.html", "./dashboard.html"],
+  ["/tasks.html", "./tasks.html"],
+  ["/profile.html", "./profile.html"],
+  ["/login.html", "./login.html"],
+  ["/signup.html", "./signup.html"]
+]);
+
+function resolveFallback(pathname) {
+  return ROUTE_FALLBACKS.get(pathname) || "./index.html";
+}
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
@@ -53,7 +67,7 @@ self.addEventListener("fetch", (event) => {
         return response;
       }).catch(async () => {
         const cached = await caches.match(request);
-        return cached || caches.match("/index.html");
+        return cached || caches.match(resolveFallback(url.pathname));
       })
     );
     return;
@@ -65,7 +79,7 @@ self.addEventListener("fetch", (event) => {
         const cloned = response.clone();
         caches.open(CACHE_NAME).then((cache) => cache.put(request, cloned));
         return response;
-      })
+      }).catch(() => caches.match(resolveFallback(url.pathname)))
     ))
   );
 });
