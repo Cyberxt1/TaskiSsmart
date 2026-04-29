@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TaskMaster</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="marketing-page">
+  <div class="app-background">
+    <div class="noise"></div>
+    <div class="stars" id="stars"></div>
+  </div>
+
+  <header class="site-header marketing-header">
+    <a class="brand" href="index.html" aria-label="TaskMaster home">
+      <span class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none">
+          <rect x="4.5" y="4.5" width="15" height="15" rx="2.5" stroke="currentColor" stroke-width="2"/>
+          <path d="M8 12.2L10.5 14.7L16.5 8.7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </span>
+      <span>TaskMaster</span>
+    </a>
+
+    <nav class="marketing-nav">
+      <a href="#features">Features</a>
+      <a href="#solution">Solution</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#about">About</a>
+    </nav>
+
+    <a class="pill-button top-login" href="login.html">
+      <span>Log In</span>
+      <svg viewBox="0 0 24 24" fill="none">
+        <path d="M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        <path d="M12 5L19 12L12 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </a>
+  </header>
+
+  <main class="marketing-main">
+    <section class="hero">
+      <div class="hero-chip">
+        <svg viewBox="0 0 24 24" fill="none">
+          <path d="M12 2L13.8 7.2L19 9L13.8 10.8L12 16L10.2 10.8L5 9L10.2 7.2L12 2Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+          <path d="M18.5 14L19.3 16.2L21.5 17L19.3 17.8L18.5 20L17.7 17.8L15.5 17L17.7 16.2L18.5 14Z" fill="currentColor"/>
+        </svg>
+        <span>Manage Tasks Effortlessly with AI</span>
+      </div>
+
+      <h1>Simplify Your Workflow<br>with <span>TaskMaster</span></h1>
+      <p>
+        Empower your studies with TaskMaster's smart task automation, streak
+        tracking, and offline-first sync &mdash; so you can focus on what truly matters.
+      </p>
+
+      <div class="hero-actions">
+        <a class="pill-button primary-action" href="signup.html">
+          <span>Get Started</span>
+          <svg viewBox="0 0 24 24" fill="none">
+            <path d="M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <path d="M12 5L19 12L12 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </a>
+        <a class="pill-button secondary-action" href="#solution">
+          <span>Request a Demo</span>
+          <svg viewBox="0 0 24 24" fill="none">
+            <path d="M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <path d="M12 5L19 12L12 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </a>
+      </div>
+
+      <div class="hero-board-shell">
+        <div class="hero-board">
+          <div class="hero-board-top">
+            <span class="window-dot red"></span>
+            <span class="window-dot yellow"></span>
+            <span class="window-dot green"></span>
+          </div>
+
+          <div class="board-grid">
+            <section class="board-column">
+              <h3>TO DO</h3>
+              <article class="mini-task mini-task-purple">
+                <div class="mini-task-icon">
+                  <svg viewBox="0 0 24 24" fill="none">
+                    <path d="M7 3V6M17 3V6M4 9H20M5 5H19C19.6 5 20 5.4 20 6V19C20 19.6 19.6 20 19 20H5C4.4 20 4 19.6 4 19V6C4 5.4 4.4 5 5 5Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                  </svg>
+                </div>
+                <div>
+                  <h4>CS Thesis Draft</h4>
+                  <p>Today</p>
+                </div>
+              </article>
+              <article class="mini-task mini-task-purple">
+                <div class="mini-task-icon mail">
+                  <svg viewBox="0 0 24 24" fill="none">
+                    <path d="M4 7H20V17H4V7Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+                    <path d="M5 8L12 13L19 8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </div>
+                <div>
+                  <h4>Algorithm HW</h4>
+                  <p>Today</p>
+                </div>
+              </article>
+            </section>
+
+            <section class="board-column">
+              <h3>IN PROGRESS</h3>
+              <article class="mini-task mini-task-indigo">
+                <span class="mini-badge">Task</span>
+                <h4>Design Report</h4>
+                <p>Today</p>
+              </article>
+              <article class="mini-task mini-task-indigo">
+                <span class="mini-badge">Task</span>
+                <h4>Group Project</h4>
+                <p>Today</p>
+              </article>
+            </section>
+
+            <section class="board-column">
+              <h3>COMPLETE</h3>
+              <article class="mini-task mini-task-blue">
+                <span class="mini-badge">Task</span>
+                <h4>Math Quiz</h4>
+                <p>Today</p>
+              </article>
+              <article class="mini-task mini-task-blue">
+                <span class="mini-badge">Task</span>
+                <h4>Lab Report</h4>
+                <p>Today</p>
+              </article>
+            </section>
+          </div>
+        </div>
+
+        <span class="floating-tile tile-top">
+          <svg viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="12" r="6" stroke="currentColor" stroke-width="1.8"/>
+            <circle cx="12" cy="12" r="2.6" stroke="currentColor" stroke-width="1.8"/>
+          </svg>
+        </span>
+        <span class="floating-tile tile-left">
+          <svg viewBox="0 0 24 24" fill="none">
+            <path d="M7 3V6M17 3V6M4 9H20M5 5H19C19.6 5 20 5.4 20 6V19C20 19.6 19.6 20 19 20H5C4.4 20 4 19.6 4 19V6C4 5.4 4.4 5 5 5Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+          </svg>
+        </span>
+        <span class="floating-tile tile-bottom">
+          <svg viewBox="0 0 24 24" fill="none">
+            <path d="M12 3V8M12 16V21M3 12H8M16 12H21M6.5 6.5L8.8 8.8M15.2 15.2L17.5 17.5M6.5 17.5L8.8 15.2M15.2 8.8L17.5 6.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+          </svg>
+        </span>
+        <span class="floating-tile tile-chat">
+          <svg viewBox="0 0 24 24" fill="none">
+            <path d="M7 18L4 20V6C4 4.9 4.9 4 6 4H18C19.1 4 20 4.9 20 6V14C20 15.1 19.1 16 18 16H9L7 18Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+          </svg>
+        </span>
+        <span class="floating-tile tile-github">
+          <svg viewBox="0 0 24 24" fill="none">
+            <path d="M9 18C4.5 19.4 4.5 15.5 3 15M15 21V17.5C15 16.5 14.9 16.1 14.5 15.7C17 15.4 19.5 14.5 19.5 10.5C19.5 9.4 19.1 8.5 18.4 7.7C18.5 7.4 18.8 6.1 18.3 4.5C18.3 4.5 17.4 4.2 15 5.8C13.3 5.3 11.7 5.3 10 5.8C7.6 4.2 6.7 4.5 6.7 4.5C6.2 6.1 6.5 7.4 6.6 7.7C5.9 8.5 5.5 9.4 5.5 10.5C5.5 14.5 8 15.4 10.5 15.7C10.1 16 10 16.5 10 17.5V21" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </span>
+      </div>
+    </section>
+
+    <section class="section-title" id="features">
+      <h2>Why Choose <span>TaskMaster</span></h2>
+      <p>A focused toolkit that adapts to how students actually work.</p>
+    </section>
+
+    <section class="feature-grid" id="solution">
+      <article class="feature-card">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" fill="none">
+            <path d="M7 12L10 15L17 8M7 7H17M7 17H13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <h3>Smart Task Management</h3>
+        <p>Create, prioritise, and organise university tasks with deadlines and categories.</p>
+      </article>
+
+      <article class="feature-card">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" fill="none">
+            <path d="M12 3C9.2 6.1 8 8.4 8 10.8C8 13.6 9.9 15.5 12.3 15.5C14.7 15.5 16.5 13.7 16.5 11.4C16.5 9.4 15.4 7.7 12 3Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <h3>Streak Tracking</h3>
+        <p>Build consistency by completing tasks daily. Watch your streak grow.</p>
+      </article>
+
+      <article class="feature-card">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" fill="none">
+            <path d="M4 8C8 8 10 12 10 16M4 4C11 4 16 9 16 16M4 12L8 16M8 12L4 16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <h3>Offline-First</h3>
+        <p>Works without internet. Your data syncs automatically when you're back online.</p>
+      </article>
+
+      <article class="feature-card">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" fill="none">
+            <path d="M12 3L18 6V11C18 15 15.5 18.4 12 20C8.5 18.4 6 15 6 11V6L12 3Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <h3>Secure &amp; Private</h3>
+        <p>Encrypted, isolated, yours. Only you can access your tasks.</p>
+      </article>
+    </section>
+
+    <section class="section-title power-title" id="pricing">
+      <h2>Power Your <span>Next Move</span></h2>
+      <p>Built for the way university students think, plan and ship.</p>
+    </section>
+
+    <section class="stats-grid">
+      <article class="stat-card">
+        <div class="stat-icon">
+          <svg viewBox="0 0 24 24" fill="none">
+            <path d="M13 3L6 13H11L10 21L18 10H13L13 3Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <h3>&lt;50ms</h3>
+        <h4>Lightning Fast</h4>
+        <p>Instant local writes via IndexedDB.</p>
+      </article>
+
+      <article class="stat-card">
+        <div class="stat-icon">
+          <svg viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="12" r="7.5" stroke="currentColor" stroke-width="1.8"/>
+            <circle cx="12" cy="12" r="3.2" stroke="currentColor" stroke-width="1.8"/>
+          </svg>
+        </div>
+        <h3>4 Categories</h3>
+        <h4>Stay Focused</h4>
+        <p>Organise by class, project, exam, life.</p>
+      </article>
+
+      <article class="stat-card">
+        <div class="stat-icon">
+          <svg viewBox="0 0 24 24" fill="none">
+            <path d="M5 15C6 13.5 7.2 12.5 8.8 12.1C10.8 11.6 12.3 12.3 13.5 13.2C14.7 14.1 15.9 14.9 17.8 14.5C19 14.2 20 13.5 21 12.3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+            <path d="M15 6H21V12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <h3>&infin; Streaks</h3>
+        <h4>Build Habits</h4>
+        <p>Daily completion fuels long-term wins.</p>
+      </article>
+    </section>
+
+    <section class="cta-section">
+      <div class="cta-card">
+        <h2>Ready to take control?</h2>
+        <p>Join students using TaskMaster to stay organised, build streaks, and crush deadlines.</p>
+        <a class="pill-button cta-button" href="signup.html">
+          <span>Create Free Account</span>
+          <svg viewBox="0 0 24 24" fill="none">
+            <path d="M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <path d="M12 5L19 12L12 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer" id="about">
+    <p>&copy; 2026 TaskMaster. Built for university students.</p>
+  </footer>
+
+  <script type="module" src="script.js"></script>
+</body>
+</html>

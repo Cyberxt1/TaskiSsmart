@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TaskMaster Sign Up</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="auth.css">
+</head>
+<body class="auth-page">
+  <div class="auth-background">
+    <div class="noise"></div>
+    <div class="stars" id="stars"></div>
+  </div>
+
+  <header class="auth-header">
+    <a class="auth-brand" href="index.html" aria-label="TaskMaster home">
+      <span class="auth-brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none">
+          <rect x="4.5" y="4.5" width="15" height="15" rx="2.5" stroke="currentColor" stroke-width="2"/>
+          <path d="M8 12.2L10.5 14.7L16.5 8.7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </span>
+      <span>TaskMaster</span>
+    </a>
+  </header>
+
+  <main class="auth-layout auth-signup-layout">
+    <a class="auth-back-home" href="index.html">
+      <svg viewBox="0 0 24 24" fill="none">
+        <path d="M19 12H5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        <path d="M12 19L5 12L12 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span>Back Home</span>
+    </a>
+
+    <p class="auth-kicker">Create your account</p>
+
+    <section class="auth-card signup-card" aria-labelledby="signup-title">
+      <h1 id="signup-title">Get started</h1>
+      <p class="auth-subtitle">Join TaskMaster to boost your productivity</p>
+
+      <form class="auth-form" id="signup-form">
+        <label class="auth-field">
+          <span>Full Name</span>
+          <input type="text" name="fullName" placeholder="Your Name" required>
+        </label>
+
+        <label class="auth-field">
+          <span>Email</span>
+          <input type="email" name="email" placeholder="you@university.edu" required>
+        </label>
+
+        <label class="auth-field">
+          <span>Password</span>
+          <input type="password" name="password" placeholder="................" required>
+        </label>
+
+        <button class="auth-submit" type="submit">
+          <span>Create Account</span>
+          <svg viewBox="0 0 24 24" fill="none">
+            <path d="M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <path d="M12 5L19 12L12 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+
+        <p class="auth-message" id="signup-message" aria-live="polite"></p>
+      </form>
+
+      <p class="auth-switch">Already have an account? <a href="login.html">Sign in</a></p>
+    </section>
+  </main>
+
+  <script type="module" src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TaskMaster Profile</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="panel-page">
+  <div class="app-background">
+    <div class="noise"></div>
+    <div class="stars" id="stars"></div>
+  </div>
+
+  <header class="panel-header">
+    <a class="brand" href="index.html" aria-label="TaskMaster home">
+      <span class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none">
+          <rect x="4.5" y="4.5" width="15" height="15" rx="2.5" stroke="currentColor" stroke-width="2"/>
+          <path d="M8 12.2L10.5 14.7L16.5 8.7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </span>
+      <span>TaskMaster</span>
+    </a>
+
+    <nav class="panel-nav" aria-label="App navigation">
+      <a class="panel-nav-link" href="dashboard.html">Dashboard</a>
+      <a class="panel-nav-link" href="tasks.html">Tasks</a>
+      <a class="panel-nav-link active" href="profile.html">Profile</a>
+    </nav>
+
+    <div class="panel-status-group">
+      <span class="panel-greeting" id="panel-greeting">Welcome</span>
+      <div class="online-pill">
+        <span class="online-dot" data-online-dot></span>
+        <span data-online-status>Online</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="panel-main profile-layout">
+    <section class="page-heading">
+      <h1>Profile</h1>
+      <p class="page-welcome" id="page-welcome">Welcome back</p>
+    </section>
+
+    <section class="dashboard-card profile-card">
+      <h2>Your Information</h2>
+
+      <form id="profile-form">
+        <label class="form-field">
+          <span>Email</span>
+          <input type="email" name="email" value="" disabled>
+        </label>
+
+        <label class="form-field">
+          <span>Full Name</span>
+          <input type="text" name="fullName" value="">
+        </label>
+
+        <label class="form-field">
+          <span>University</span>
+          <input type="text" name="university" placeholder="e.g. University of Lagos">
+        </label>
+
+        <button class="save-btn" type="submit">Save Changes</button>
+      </form>
+    </section>
+
+    <section class="dashboard-card signout-card">
+      <button class="signout-btn" id="signout-btn" type="button">Sign Out</button>
+    </section>
+  </main>
+
+  <nav class="mobile-bottom-nav" aria-label="Mobile app navigation">
+    <a class="mobile-bottom-link" href="dashboard.html">Dashboard</a>
+    <a class="mobile-bottom-link" href="tasks.html">Tasks</a>
+    <a class="mobile-bottom-link active" href="profile.html">Profile</a>
+  </nav>
+
+  <script type="module" src="script.js"></script>
+</body>
+</html>

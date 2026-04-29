@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TaskMaster Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="panel-page">
+  <div class="app-background">
+    <div class="noise"></div>
+    <div class="stars" id="stars"></div>
+  </div>
+
+  <header class="panel-header">
+    <a class="brand" href="index.html" aria-label="TaskMaster home">
+      <span class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none">
+          <rect x="4.5" y="4.5" width="15" height="15" rx="2.5" stroke="currentColor" stroke-width="2"/>
+          <path d="M8 12.2L10.5 14.7L16.5 8.7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </span>
+      <span>TaskMaster</span>
+    </a>
+
+    <nav class="panel-nav" aria-label="App navigation">
+      <a class="panel-nav-link active" href="dashboard.html">Dashboard</a>
+      <a class="panel-nav-link" href="tasks.html">Tasks</a>
+      <a class="panel-nav-link" href="profile.html">Profile</a>
+    </nav>
+
+    <div class="panel-status-group">
+      <span class="panel-greeting" id="panel-greeting">Welcome</span>
+      <div class="online-pill">
+        <span class="online-dot" data-online-dot></span>
+        <span data-online-status>Online</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="panel-main dashboard-layout">
+    <section class="page-heading">
+      <h1>Dashboard</h1>
+      <p class="page-welcome" id="page-welcome">Welcome back</p>
+      <p><span class="online-dot large" data-online-dot></span> <span data-online-status>Online</span> &middot; <span id="today-task-count">0 tasks done today</span></p>
+    </section>
+
+    <section class="stats-row">
+      <article class="dashboard-card stat-panel">
+        <div class="stat-symbol streak">
+          <svg viewBox="0 0 24 24" fill="none">
+            <path d="M12 3C9.2 6.1 8 8.4 8 10.8C8 13.6 9.9 15.5 12.3 15.5C14.7 15.5 16.5 13.7 16.5 11.4C16.5 9.4 15.4 7.7 12 3Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+            <path d="M10 18.5C10.8 19.4 12 20 13.4 20C16 20 18 18.1 18 15.8C18 14.6 17.5 13.5 16.6 12.7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="stat-copy">
+          <h2 id="streak-count">0</h2>
+          <p>day streak</p>
+        </div>
+        <div class="streak-bar-group">
+          <span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+        </div>
+        <strong>Longest streak: <span id="longest-streak">0 days</span></strong>
+      </article>
+
+      <article class="dashboard-card stat-panel compact">
+        <div class="stat-symbol total">
+          <svg viewBox="0 0 24 24" fill="none">
+            <path d="M9 7H18M9 12H18M9 17H18M5 7H5.01M5 12H5.01M5 17H5.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <path d="M4 21L8 17" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="stat-copy">
+          <h2 id="total-tasks-count">0</h2>
+          <p>total tasks</p>
+        </div>
+      </article>
+
+      <article class="dashboard-card stat-panel compact">
+        <div class="stat-symbol complete">
+          <svg viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="12" r="8" stroke="currentColor" stroke-width="2"/>
+            <path d="M9 12L11.2 14.2L15.5 9.9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="stat-copy">
+          <h2 id="completed-tasks-count">0</h2>
+          <p>completed</p>
+        </div>
+      </article>
+    </section>
+
+    <section class="dashboard-card recent-panel">
+      <h2>Recent Tasks</h2>
+      <div class="recent-tasks-list" id="recent-tasks-list"></div>
+      <div class="empty-state" id="recent-empty-state">No tasks yet. Create one to get started!</div>
+    </section>
+  </main>
+
+  <nav class="mobile-bottom-nav" aria-label="Mobile app navigation">
+    <a class="mobile-bottom-link active" href="dashboard.html">Dashboard</a>
+    <a class="mobile-bottom-link" href="tasks.html">Tasks</a>
+    <a class="mobile-bottom-link" href="profile.html">Profile</a>
+  </nav>
+
+  <script type="module" src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TaskMaster Tasks</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="panel-page">
+  <div class="app-background">
+    <div class="noise"></div>
+    <div class="stars" id="stars"></div>
+  </div>
+
+  <header class="panel-header">
+    <a class="brand" href="index.html" aria-label="TaskMaster home">
+      <span class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none">
+          <rect x="4.5" y="4.5" width="15" height="15" rx="2.5" stroke="currentColor" stroke-width="2"/>
+          <path d="M8 12.2L10.5 14.7L16.5 8.7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </span>
+      <span>TaskMaster</span>
+    </a>
+
+    <nav class="panel-nav" aria-label="App navigation">
+      <a class="panel-nav-link" href="dashboard.html">Dashboard</a>
+      <a class="panel-nav-link active" href="tasks.html">Tasks</a>
+      <a class="panel-nav-link" href="profile.html">Profile</a>
+    </nav>
+
+    <div class="panel-status-group">
+      <span class="panel-greeting" id="panel-greeting">Welcome</span>
+      <div class="online-pill">
+        <span class="online-dot" data-online-dot></span>
+        <span data-online-status>Online</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="panel-main tasks-layout">
+    <div class="tasks-topbar">
+      <section class="page-heading">
+        <h1>Tasks</h1>
+        <p class="page-welcome" id="page-welcome">Welcome back</p>
+      </section>
+
+      <a class="pill-button create-task-btn" href="#create-task-modal">
+        <svg viewBox="0 0 24 24" fill="none">
+          <path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        <span>New Task</span>
+      </a>
+    </div>
+
+    <div class="task-filter-row">
+      <button class="filter-chip active" type="button" data-filter="all">All</button>
+      <button class="filter-chip" type="button" data-filter="pending">Pending</button>
+      <button class="filter-chip" type="button" data-filter="completed">Completed</button>
+    </div>
+
+    <section class="task-list" id="task-list"></section>
+    <div class="tasks-empty" id="tasks-empty">No tasks found. Create one!</div>
+  </main>
+
+  <nav class="mobile-bottom-nav" aria-label="Mobile app navigation">
+    <a class="mobile-bottom-link" href="dashboard.html">Dashboard</a>
+    <a class="mobile-bottom-link active" href="tasks.html">Tasks</a>
+    <a class="mobile-bottom-link" href="profile.html">Profile</a>
+  </nav>
+
+  <div class="modal-overlay" id="create-task-modal">
+    <div class="task-modal">
+      <div class="task-modal-header">
+        <h2>Create Task</h2>
+        <a class="modal-close" href="tasks.html" aria-label="Close create task modal">
+          <svg viewBox="0 0 24 24" fill="none">
+            <path d="M6 6L18 18M18 6L6 18" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/>
+          </svg>
+        </a>
+      </div>
+
+      <form class="task-modal-form" id="task-form">
+        <label class="modal-field">
+          <span>Title *</span>
+          <input type="text" name="title" placeholder="e.g. Complete assignment" required>
+        </label>
+
+        <label class="modal-field">
+          <span>Description</span>
+          <textarea rows="4" name="description" placeholder="Optional details..."></textarea>
+        </label>
+
+        <div class="modal-field-row">
+          <label class="modal-field">
+            <span>Priority</span>
+            <div class="select-wrap">
+              <select name="priority">
+                <option value="medium" selected>Medium</option>
+                <option value="low">Low</option>
+                <option value="high">High</option>
+              </select>
+              <svg viewBox="0 0 24 24" fill="none">
+                <path d="M7 10L12 15L17 10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+          </label>
+
+          <label class="modal-field">
+            <span>Deadline</span>
+            <div class="date-wrap">
+              <input type="text" name="deadline" placeholder="mm/dd/yyyy">
+              <svg viewBox="0 0 24 24" fill="none">
+                <path d="M7 3V6M17 3V6M4 9H20M5 5H19C19.6 5 20 5.4 20 6V19C20 19.6 19.6 20 19 20H5C4.4 20 4 19.6 4 19V6C4 5.4 4.4 5 5 5Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+              </svg>
+            </div>
+          </label>
+        </div>
+
+        <label class="modal-field">
+          <span>Category</span>
+          <input type="text" name="category" placeholder="e.g. Coursework, Personal">
+        </label>
+
+        <button class="create-modal-submit" type="submit">Create Task</button>
+      </form>
+    </div>
+  </div>
+
+  <script type="module" src="script.js"></script>
+</body>
+</html>
